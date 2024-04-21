@@ -1,0 +1,1 @@
+* ArsRituals com.kanzaji.ars_rituals_kubejs.rituals.AbstractRitualBuilder

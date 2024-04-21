@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.kanzaji.ars_rituals_kubejs.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "ars_rituals_kubejs.refmap.json",
+  "mixins": [
+    "RitualRegistryMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
