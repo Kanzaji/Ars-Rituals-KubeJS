@@ -1,1 +1,3 @@
 * ArsRituals com.kanzaji.ars_rituals_kubejs.rituals.AbstractRitualBuilder
+* ParticleUtil com.hollingsworth.arsnouveau.client.particle.ParticleUtil
+* ParticleColor com.hollingsworth.arsnouveau.client.particle.ParticleColor

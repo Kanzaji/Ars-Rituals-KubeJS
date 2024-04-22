@@ -11,7 +11,11 @@ import java.util.function.Consumer;
 
 public class AbstractRitualBuilder {
     private final ResourceLocation id;
-    private Consumer<AbstractRitual> tick = (r) -> {};
+    private int cost = 0;
+    private Consumer<AbstractRitual> serverTick = (r) -> {};
+    private Consumer<AbstractRitual> clientTick = (r) -> {};
+    private Consumer<AbstractRitual> onStart = (r) -> {};
+
 
     private AbstractRitualBuilder(ResourceLocation id) {
         this.id = id;
@@ -27,11 +31,46 @@ public class AbstractRitualBuilder {
     }
 
     public @NotNull AbstractRitualBuilder setTick(@NotNull Consumer<AbstractRitual> action) {
-        this.tick = Objects.requireNonNull(action);
+        this.serverTick = Objects.requireNonNull(action);
         return this;
     }
 
+    public @NotNull AbstractRitualBuilder setClientTick(@NotNull Consumer<AbstractRitual> action) {
+        this.clientTick = Objects.requireNonNull(action);
+        return this;
+    }
+
+    public @NotNull AbstractRitualBuilder onStart(@NotNull Consumer<AbstractRitual> action) {
+        this.onStart = Objects.requireNonNull(action);
+        return this;
+    }
+
+    public @NotNull AbstractRitualBuilder setCost(int sourceCost) {
+        this.cost = sourceCost;
+        return this;
+    }
+
+    /**
+     * Build method that is used to register the new Ritual to the Ars Nouveau registry.
+     * If used with already existing ID, it will override it.
+     */
     public void build() {
-        APIRegistry.registerRitual(new AbstractRitualWrapper(id, tick));
+        APIRegistry.registerRitual(new AbstractRitualWrapper(id, cost, serverTick, clientTick, onStart));
+    }
+
+    /**
+     * Build method that allows to create a ritual based on this builder, but with different ID.
+     * @param id ResourceLocation under which Ritual will be registered.
+     */
+    public void build(@NotNull ResourceLocation id) {
+        APIRegistry.registerRitual(new AbstractRitualWrapper(Objects.requireNonNull(id), cost, serverTick, clientTick, onStart));
+    }
+
+    public void build (@NotNull String id) {
+        try {
+            APIRegistry.registerRitual(new AbstractRitualWrapper(new ResourceLocation(Objects.requireNonNull(id)), cost, serverTick, clientTick, onStart));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Incorrect ID provided! " + e.getMessage());
+        }
     }
 }

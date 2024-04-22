@@ -2,28 +2,66 @@ package com.kanzaji.ars_rituals_kubejs.rituals;
 
 import com.hollingsworth.arsnouveau.api.ritual.AbstractRitual;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
 import java.util.function.Consumer;
 
 public class AbstractRitualWrapper extends AbstractRitual {
     private final ResourceLocation id;
-    private final Consumer<AbstractRitual> tick;
-    public AbstractRitualWrapper(ResourceLocation id, Consumer<AbstractRitual> tick) {
+    private final Consumer<AbstractRitual> onStart;
+    private final Consumer<AbstractRitual> serverTick;
+    private final Consumer<AbstractRitual> clientTick;
+    private final int sourceCost;
+    public AbstractRitualWrapper(
+            ResourceLocation id,
+            int sourceCost,
+            Consumer<AbstractRitual> sTick,
+            Consumer<AbstractRitual> cTick,
+            Consumer<AbstractRitual> onStart
+    ) {
         this.id = id;
-        this.tick = tick;
+        this.sourceCost = sourceCost;
+        this.serverTick = sTick;
+        this.clientTick = cTick;
+        this.onStart = onStart;
     }
 
     public AbstractRitualWrapper copy() {
-        return new AbstractRitualWrapper(this.id, this.tick);
+        return new AbstractRitualWrapper(this.id, this.sourceCost, this.serverTick, this.clientTick, this.onStart);
     }
 
     @Override
     protected void tick() {
-        this.tick.accept(this);
+        if (getLevel().isClientSide) serverTick.accept(this); else clientTick.accept(this);
     }
 
     @Override
     public ResourceLocation getRegistryName() {
         return id;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (sourceCost > 0) this.setNeedsSource(true);
+        this.onStart.accept(this);
+    }
+
+    @Override
+    public boolean canStart() {
+        return super.canStart();
+    }
+
+    @Override
+    public int getSourceCost() {
+        return this.sourceCost;
+    }
+
+    /**
+     * Convenient wrapper, as Ars Nouveau decided to name this getWorld()
+     * @return Level Object of this ritual.
+     */
+    public Level getLevel() {
+        return this.getWorld();
     }
 }
