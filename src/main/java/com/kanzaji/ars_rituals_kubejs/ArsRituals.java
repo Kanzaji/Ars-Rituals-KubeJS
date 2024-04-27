@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 
 @Mod(ArsRituals.MODID)
 public class ArsRituals {
-
     public static final String MODID = "ars_rituals_kubejs";
     private static final Logger logger = LogUtils.getLogger();
     public ArsRituals() {
