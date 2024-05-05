@@ -8,7 +8,8 @@ import java.util.function.Consumer;
 
 public class AbstractRitualWrapper extends AbstractRitual {
     private final ResourceLocation id;
-    private final Consumer<AbstractRitual> onStart;
+    private final Consumer<AbstractRitual> onServerStart;
+    private final Consumer<AbstractRitual> onClientStart;
     private final Consumer<AbstractRitual> serverTick;
     private final Consumer<AbstractRitual> clientTick;
     private final int sourceCost;
@@ -17,17 +18,19 @@ public class AbstractRitualWrapper extends AbstractRitual {
             int sourceCost,
             Consumer<AbstractRitual> sTick,
             Consumer<AbstractRitual> cTick,
-            Consumer<AbstractRitual> onStart
+            Consumer<AbstractRitual> onServerStart,
+            Consumer<AbstractRitual> onClientStart
     ) {
         this.id = id;
         this.sourceCost = sourceCost;
         this.serverTick = sTick;
         this.clientTick = cTick;
-        this.onStart = onStart;
+        this.onServerStart = onServerStart;
+        this.onClientStart = onClientStart;
     }
 
     public AbstractRitualWrapper copy() {
-        return new AbstractRitualWrapper(this.id, this.sourceCost, this.serverTick, this.clientTick, this.onStart);
+        return new AbstractRitualWrapper(this.id, this.sourceCost, this.serverTick, this.clientTick, this.onServerStart, this.onClientStart);
     }
 
     @Override
@@ -44,7 +47,7 @@ public class AbstractRitualWrapper extends AbstractRitual {
     public void onStart() {
         super.onStart();
         if (sourceCost > 0) this.setNeedsSource(true);
-        this.onStart.accept(this);
+        if (getLevel().isClientSide) onServerStart.accept(this); else onClientStart.accept(this);
     }
 
     @Override
